@@ -18,7 +18,7 @@ pub enum FinderConfig {
 }
 
 impl FinderConfig {
-    pub fn instantiate(&self) -> Box<dyn Finder> {
+    pub fn instantiate(self) -> Box<dyn Finder> {
         match self {
             FinderConfig::Fs(config) => config.instantiate(),
         }

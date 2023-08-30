@@ -12,7 +12,7 @@ pub enum FsFinderConfig {
 }
 
 impl FsFinderConfig {
-    pub fn instantiate(&self) -> Box<dyn Finder> {
+    pub fn instantiate(self) -> Box<dyn Finder> {
         match self {
             FsFinderConfig::FindEntry(config) => config.instantiate(),
         }
