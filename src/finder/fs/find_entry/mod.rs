@@ -85,10 +85,8 @@ impl FSEntryFinder {
         })
         .unwrap()
     }
-}
 
-impl Finder for FSEntryFinder {
-    fn find(&self, name: &str) -> Vec<Box<dyn FindResult>> {
+    fn _find(&self, name: &str) -> Vec<FSFindResult> {
         let mut founds = vec![];
         let re = self.build_search_pattern(name);
         for fss_entry in self.roots.iter() {
@@ -104,16 +102,26 @@ impl Finder for FSEntryFinder {
                     is_file: entry.path().is_file(),
                 };
                 println!("{}", fp); // TODO:
-                founds.push(Box::new(found) as Box<dyn FindResult>);
+                founds.push(found);
             }
         }
         founds
     }
 }
 
+impl Finder for FSEntryFinder {
+    fn find(&self, name: &str) -> Vec<Box<dyn FindResult>> {
+        self._find(name)
+            .into_iter()
+            .map(|f| Box::new(f) as Box<dyn FindResult>)
+            .collect()
+    }
+}
+
 impl EntryFinderConfig {
     pub fn instantiate(self) -> Box<dyn Finder> {
-        let entries_finder = FSEntryFinder::new(self.roots, self.pattern, self.template, self.renames);
+        let entries_finder =
+            FSEntryFinder::new(self.roots, self.pattern, self.template, self.renames);
         Box::new(entries_finder)
     }
 }
