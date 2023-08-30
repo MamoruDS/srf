@@ -1,7 +1,9 @@
-use super::config::WalkdirOptions;
-use regex::Regex;
 use std::collections::HashMap;
+
+use regex::Regex;
 use walkdir::WalkDir;
+
+use super::config::WalkdirOptions;
 
 pub fn build_renames(
     renames: Option<HashMap<String, Vec<(String, String)>>>,
