@@ -5,21 +5,21 @@ use regex::{Captures, Regex};
 use crate::finder::{FindResult, Finder};
 
 use super::FSFindResult;
-use config::{Entry, EntryConfig, FindEntryConfig};
+use config::{Entry, EntryConfig, EntryFinderConfig};
 use utils::{build_renames, build_walkdir};
 
 pub mod config;
 mod utils;
 
 #[derive(Clone, Debug)]
-pub struct FindEntry {
+pub struct FSEntryFinder {
     roots: Vec<Entry>,
     parse_pattern: Regex,
     search_template: String,
     renames: Option<HashMap<String, Vec<(Regex, String)>>>,
 }
 
-impl FindEntry {
+impl FSEntryFinder {
     pub fn new(
         roots: Vec<EntryConfig>,
         parse_pattern: String,
@@ -87,7 +87,7 @@ impl FindEntry {
     }
 }
 
-impl Finder for FindEntry {
+impl Finder for FSEntryFinder {
     fn find(&self, name: &str) -> Vec<Box<dyn FindResult>> {
         let mut founds = vec![];
         let re = self.build_search_pattern(name);
@@ -111,9 +111,9 @@ impl Finder for FindEntry {
     }
 }
 
-impl FindEntryConfig {
+impl EntryFinderConfig {
     pub fn instantiate(self) -> Box<dyn Finder> {
-        let entries_finder = FindEntry::new(self.roots, self.pattern, self.template, self.renames);
+        let entries_finder = FSEntryFinder::new(self.roots, self.pattern, self.template, self.renames);
         Box::new(entries_finder)
     }
 }

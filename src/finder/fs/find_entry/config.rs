@@ -22,7 +22,7 @@ pub enum EntryConfig {
 }
 
 #[derive(Clone, Debug, Deserialize)]
-pub struct FindEntryConfig {
+pub struct EntryFinderConfig {
     pub roots: Vec<EntryConfig>,
     pub pattern: String,
     pub template: String,

@@ -2,13 +2,13 @@ use serde::Deserialize;
 
 use crate::finder::Finder;
 
-use super::find_entry::config::FindEntryConfig;
+use super::find_entry::config::EntryFinderConfig;
 
 #[derive(Debug, Deserialize)]
 #[serde(tag = "type")]
 pub enum FsFinderConfig {
     #[serde(rename = "find_entry")]
-    FindEntry(FindEntryConfig),
+    FindEntry(EntryFinderConfig),
 }
 
 impl FsFinderConfig {
