@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use clap::Parser;
 
 mod cli;
@@ -5,6 +7,7 @@ mod finder;
 mod server;
 
 use cli::{Args, Commands};
+use server::start_server;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -12,8 +15,14 @@ async fn main() -> std::io::Result<()> {
     let routes = finder::get_finder_from_yaml(&args.config);
 
     match &args.command {
-        Commands::Server(_server_args) => {
-            unimplemented!()
+        Commands::Server(server_args) => {
+            start_server(
+                &server_args.bind,
+                server_args.port,
+                server_args.cors,
+                routes.into_iter().map(|(k, v)| (k, Arc::new(v))).collect(),
+            )
+            .await
         }
         Commands::Cli(cli_args) => {
             if !cli_args.interactive {
