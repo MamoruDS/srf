@@ -1,13 +1,17 @@
 use std::collections::HashMap;
 
+use async_trait::async_trait;
+use erased_serde;
+
 mod config;
 mod fs;
 // mod traits;
 
 pub trait FindResult: erased_serde::Serialize + std::fmt::Debug {}
 
-pub trait Finder {
-    fn find(&self, name: &str) -> Vec<Box<dyn FindResult>>;
+#[async_trait]
+pub trait Finder: Sync + Send + std::fmt::Debug {
+    async fn find(&self, name: &str) -> Vec<Box<dyn FindResult>>;
 }
 
 pub fn get_finder_from_yaml(config_fp: &str) -> HashMap<String, Vec<Box<dyn Finder>>> {
