@@ -29,7 +29,7 @@ async fn main() -> std::io::Result<()> {
                 let entries = routes.get(&cli_args.route).unwrap();
                 for input in cli_args.inputs.iter() {
                     for entry in entries.iter() {
-                        let results = entry.find(input);
+                        let results = entry.find(input).await;
                         if !results.is_empty() {
                             println!("{:?}", results);
                         }
