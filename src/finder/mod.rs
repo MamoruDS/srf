@@ -1,16 +1,25 @@
 use std::collections::HashMap;
+use std::fmt::Debug;
 
 use async_trait::async_trait;
 use erased_serde;
+use serde::{Serialize, Serializer};
 
 mod config;
 mod fs;
 // mod traits;
 
-pub trait FindResult: erased_serde::Serialize + std::fmt::Debug {}
+pub trait FindResult: erased_serde::Serialize + Debug {}
+
+// TODO:
+impl Serialize for Box<dyn FindResult> {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        erased_serde::serialize(self.as_ref(), serializer)
+    }
+}
 
 #[async_trait]
-pub trait Finder: Sync + Send + std::fmt::Debug {
+pub trait Finder: Sync + Send + Debug {
     async fn find(&self, name: &str) -> Vec<Box<dyn FindResult>>;
 }
 
