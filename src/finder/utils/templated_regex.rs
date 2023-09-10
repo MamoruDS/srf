@@ -5,7 +5,7 @@ use regex::{Captures, Regex};
 pub fn build_search_regex(
     parse_pattern: &Regex,
     search_template: &str,
-    renames: Option<HashMap<String, Vec<(Regex, String)>>>,
+    renames: &Option<HashMap<String, Vec<(Regex, String)>>>,
     input: &str,
 ) -> Regex {
     let template = match renames.as_ref() {
