@@ -7,12 +7,12 @@ use async_trait::async_trait;
 use regex::Regex;
 use tokio::sync::Mutex;
 
-use crate::finder::utils::templated_regex::build_search_regex;
+use crate::finder::utils::templated_regex::{build_renames, build_search_regex};
 use crate::finder::{FindResult, Finder};
 
 use super::FSFindResult;
 use config::{Entry, EntryConfig, EntryFinderConfig};
-use utils::{build_renames, build_walkdir};
+use utils::build_walkdir;
 
 pub mod config;
 mod utils;
@@ -49,7 +49,7 @@ impl FSEntryFinder {
                 EntryConfig::Configured(entry) => entry,
             })
             .collect();
-        let parse_pattern = Regex::new(&parse_pattern).unwrap();
+        let parse_pattern = Regex::new(&parse_pattern).unwrap(); // TODO:
         let renames = build_renames(renames, None);
         Self {
             roots,

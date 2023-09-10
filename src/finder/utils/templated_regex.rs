@@ -2,6 +2,31 @@ use std::collections::HashMap;
 
 use regex::{Captures, Regex};
 
+pub fn build_renames(
+    renames: Option<HashMap<String, Vec<(String, String)>>>,
+    valid_vars: Option<&Vec<&str>>,
+) -> Option<HashMap<String, Vec<(Regex, String)>>> {
+    if renames.as_ref().is_none() {
+        return None;
+    }
+    if renames.as_ref().unwrap().is_empty() {
+        return None;
+    }
+    let mut renames_re = HashMap::new();
+    for (name, cases) in renames.unwrap().into_iter() {
+        if valid_vars.is_some() && !valid_vars.unwrap().contains(&name.as_str()) {
+            continue;
+        }
+        let mut cases_re = vec![];
+        for (pattern, template) in cases.into_iter() {
+            let re = Regex::new(&pattern).unwrap();
+            cases_re.push((re, template));
+        }
+        renames_re.insert(name, cases_re);
+    }
+    Some(renames_re)
+}
+
 pub fn build_search_regex(
     parse_pattern: &Regex,
     search_template: &str,
