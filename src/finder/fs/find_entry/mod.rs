@@ -4,9 +4,10 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 use async_trait::async_trait;
-use regex::{Captures, Regex};
+use regex::Regex;
 use tokio::sync::Mutex;
 
+use crate::finder::utils::templated_regex::build_search_regex;
 use crate::finder::{FindResult, Finder};
 
 use super::FSFindResult;
@@ -62,46 +63,6 @@ impl FSEntryFinder {
         }
     }
 
-    fn build_search_pattern(&self, input: &str) -> Regex {
-        let template = match self.renames.as_ref() {
-            Some(renames) => {
-                let caps = self.parse_pattern.captures(input).unwrap();
-                let extendable_re = Regex::new(r"\$((?P<var>\w+)|\{(?P<braced>\w+)\})").unwrap();
-                let template =
-                    extendable_re.replace_all(&self.search_template, |matches: &Captures| {
-                        let var = matches
-                            .name("var")
-                            .or_else(|| matches.name("braced"))
-                            .unwrap()
-                            .as_str();
-                        let caps_val = caps.name(var);
-                        let placer = match (caps_val, renames.get(var)) {
-                            (Some(val), Some(cases)) => {
-                                let mut placer = None;
-                                for (re, tmp) in cases.into_iter() {
-                                    if re.is_match(val.as_str()) {
-                                        placer =
-                                            Some(re.replace_all(val.as_str(), tmp).to_string());
-                                    }
-                                }
-                                placer
-                            }
-                            _ => None,
-                        };
-                        let placer = placer.unwrap_or(format!(r"${{{}}}", var));
-                        placer
-                    });
-                Some(template)
-            }
-            _ => None,
-        };
-        Regex::new(&match template {
-            Some(t) => self.parse_pattern.replace_all(input, t),
-            None => self.parse_pattern.replace_all(input, &self.search_template),
-        })
-        .unwrap()
-    }
-
     fn _cache_walkdir(&self) -> Vec<String> {
         let mut cached = vec![];
         for fss_entry in self.roots.iter() {
@@ -115,7 +76,12 @@ impl FSEntryFinder {
 
     fn _find_in(&self, name: &str, entries: &[String]) -> Vec<FSFindResult> {
         let mut founds = vec![];
-        let re = self.build_search_pattern(name);
+        let re = build_search_regex(
+            &self.parse_pattern,
+            &self.search_template,
+            &self.renames,
+            name,
+        );
         for fp in entries.iter() {
             if !re.is_match(&fp) {
                 continue;
