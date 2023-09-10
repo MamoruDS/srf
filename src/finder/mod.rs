@@ -7,6 +7,7 @@ use serde::{Serialize, Serializer};
 
 mod config;
 mod fs;
+mod utils;
 // mod traits;
 
 pub trait FindResult: erased_serde::Serialize + Debug {}
