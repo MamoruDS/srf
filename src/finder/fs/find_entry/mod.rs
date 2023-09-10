@@ -102,20 +102,23 @@ impl FSEntryFinder {
     }
 
     async fn _find(&self, name: &str) -> Vec<FSFindResult> {
-        let mut cached = self._walkdir_cache.cached.lock().await;
-        match cached.1 {
-            Some(_) => {
-                if cached.0.elapsed() > self._walkdir_cache.ttl {
-                    cached.1 = Some(self._cache_walkdir());
-                    cached.0 = Instant::now();
+        let cached = {
+            let mut c = self._walkdir_cache.cached.lock().await;
+            match c.1 {
+                Some(_) => {
+                    if c.0.elapsed() > self._walkdir_cache.ttl {
+                        c.1 = Some(self._cache_walkdir());
+                        c.0 = Instant::now();
+                    }
                 }
-            }
-            None => {
-                cached.1 = Some(self._cache_walkdir());
-                cached.0 = Instant::now();
-            }
+                None => {
+                    c.1 = Some(self._cache_walkdir());
+                    c.0 = Instant::now();
+                }
+            };
+            c.1.clone()
         };
-        self._find_in(name, cached.1.as_ref().unwrap())
+        self._find_in(name, cached.as_ref().unwrap())
     }
 }
 
