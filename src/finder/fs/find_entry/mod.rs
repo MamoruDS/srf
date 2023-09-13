@@ -83,7 +83,7 @@ impl FSEntryFinder {
             name,
         );
         for fp in entries.iter() {
-            if !re.is_match(&fp) {
+            if !re.is_match(fp) {
                 continue;
             }
             let found = FSFindResult {
@@ -135,8 +135,11 @@ impl Finder for FSEntryFinder {
 
 impl EntryFinderConfig {
     pub fn instantiate(self) -> Box<dyn Finder> {
-        let entries_finder =
-            FSEntryFinder::new(self.roots, self.pattern, self.template, self.renames);
-        Box::new(entries_finder)
+        Box::new(FSEntryFinder::new(
+            self.roots,
+            self.pattern,
+            self.template,
+            self.renames,
+        ))
     }
 }
