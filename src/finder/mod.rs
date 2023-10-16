@@ -7,6 +7,7 @@ use serde::{Serialize, Serializer};
 
 mod config;
 mod fs;
+mod text;
 mod utils;
 // mod traits;
 
